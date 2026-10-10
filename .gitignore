@@ -17,3 +17,5 @@ patrons.jsonl
 # keep
 !token.json
 treasury_mainnet.json
+demo.cast
+demo_output.txt

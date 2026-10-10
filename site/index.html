@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>agent-chain — x402 agent commerce</title>
+<style>
+  :root{--bg:#0b0d10;--fg:#e6edf3;--mut:#8b949e;--acc:#3fb950;--warn:#d29922;--card:#161b22;--bd:#30363d}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;padding:40px 20px}
+  .w{max-width:860px;margin:0 auto}
+  h1{font-size:28px;margin:0 0 4px}
+  .sub{color:var(--mut);margin-bottom:28px}
+  h2{font-size:17px;margin:32px 0 12px;color:var(--acc);border-bottom:1px solid var(--bd);padding-bottom:6px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px;margin:12px 0}
+  code{background:#21262d;padding:2px 6px;border-radius:4px;font-size:14px}
+  pre{background:#0d1117;border:1px solid var(--bd);border-radius:8px;padding:14px;overflow-x:auto;font-size:13px;line-height:1.5}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd)}
+  th{color:var(--mut);font-weight:600}
+  .ok{color:var(--acc)}.wa{color:var(--warn)}
+  a{color:#58a6ff}
+  .pill{display:inline-block;background:#1f6feb22;border:1px solid #1f6feb;color:#58a6ff;border-radius:20px;padding:2px 10px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="w">
+
+<h1>agent-chain</h1>
+<div class="sub">Building blocks for an autonomous agent that can hold, spend, and earn money under policy.</div>
+<span class="pill">x402 · USDC on Base</span> <span class="pill">ERC-8004 agentId 9620</span>
+
+<h2>Live paid endpoint</h2>
+<div class="card">
+<p style="margin:0 0 10px"><strong>This endpoint is ephemeral by design</strong> — quick tunnels rotate. The <em>durable</em> record is below: the challenge shape, the receipt, and the code.</p>
+<pre id="ep">curl -s $AGENT_ENDPOINT/health
+curl -s $AGENT_ENDPOINT/signal/agents   # -> HTTP 402</pre>
+</div>
+
+<h2>The 402 handshake (real, verified)</h2>
+<pre>GET /signal/agents
+&rarr; HTTP 402 Payment Required
+
+{
+  "x402Version": 1,
+  "accepts": [{
+    "scheme": "exact",
+    "network": "base",
+    "maxAmountRequired": "5000",
+    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "payTo": "0x56D390539A0227C3a418D1e7f06f446b2EE2e351",
+    "resource": "/signal/agents",
+    "outputSchema": { "input": { "discoverable": true } }
+  }]
+}</pre>
+<p class="sub">0.005 USDC · Base mainnet · real USDC contract · seller needs no gas (facilitator settles via EIP-3009)</p>
+
+<h2>Verified settlement (Base Sepolia)</h2>
+<pre>tx 0xe08ff2a7d3021f0135ce74cd1e108193d000de91306c4fe00569f570742c5181
+  payer    &minus;0.01 USDC
+  merchant +0.01 USDC
+  block    47942463  status success</pre>
+
+<h2>Components</h2>
+<table>
+<tr><th>Component</th><th>Status</th></tr>
+<tr><td>Policy-gated treasury</td><td class="ok">tested (limits, refusals, ledger)</td></tr>
+<tr><td>x402 paid rail</td><td class="ok">settled on-chain</td></tr>
+<tr><td>x402 paying client</td><td class="ok">balance-delta proof</td></tr>
+<tr><td>ERC-8004 identity</td><td class="ok">agentId 9620</td></tr>
+<tr><td>Agent-owned inbox</td><td class="ok">live</td></tr>
+<tr><td>Self-provisioning (buy own infra)</td><td class="ok">to funding boundary</td></tr>
+<tr><td>Revenue</td><td class="wa">$0.00 — no buyer yet</td></tr>
+</table>
+
+<h2>Why this exists</h2>
+<p>The agent-commerce <em>infrastructure</em> is real. The seller <em>economy</em> is not, yet: median x402 seller revenue is ~$0.06/month, 38% earn nothing, top 10 sellers take ~98.5% of volume. So x402 here is a <strong>capability</strong>, not a business model. Real revenue must come from services and grants while the rails mature.</p>
+
+<h2>Links</h2>
+<p>
+<a href="https://github.com/Dosbox420/agent-chain">github.com/Dosbox420/agent-chain</a> ·
+<a href="https://github.com/Dosbox420/agent-chain/blob/main/docs/landscape.md">landscape research</a>
+</p>
+
+<p class="sub" style="margin-top:36px">MIT · testnet + mainnet-readiness · every claim links to a transaction hash or live response</p>
+</div>
+<script>
+// point the endpoint examples at wherever this is being read from, if known
+if (location.hash) document.getElementById('ep').textContent =
+  document.getElementById('ep').textContent.replaceAll('$AGENT_ENDPOINT', location.hash.slice(1));
+</script>
+</body>
+</html>

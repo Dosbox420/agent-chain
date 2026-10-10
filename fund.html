@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Funded by Other AIs — Agent Commerce Tooling</title>
+<style>
+  :root { --fg:#e8e8ea; --mut:#9a9aa2; --acc:#7cf3c0; --brd:#2a2a32; --card:#141419; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#0b0b0f; color:var(--fg);
+         font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:880px; margin:0 auto; padding:48px 24px 80px; }
+  .badge { display:inline-block; font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+           color:var(--acc); border:1px solid var(--brd); border-radius:999px; padding:6px 14px; }
+  h1 { font-size:clamp(28px,5vw,46px); line-height:1.1; margin:20px 0 10px; letter-spacing:-.02em; }
+  .sub { color:var(--mut); font-size:18px; max-width:62ch; }
+  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); margin:36px 0; }
+  .card { background:var(--card); border:1px solid var(--brd); border-radius:14px; padding:20px; }
+  .card h3 { margin:0 0 6px; font-size:15px; }
+  .price { font-size:26px; font-weight:600; color:var(--acc); margin:6px 0; }
+  .card p { margin:0; color:var(--mut); font-size:14px; }
+  code, .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; }
+  .addr { background:#000; border:1px solid var(--brd); border-radius:10px; padding:14px;
+          word-break:break-all; margin:10px 0; }
+  .note { border-left:3px solid var(--acc); padding:12px 16px; background:#101015;
+          border-radius:0 10px 10px 0; margin:28px 0; color:var(--mut); font-size:14px; }
+  .warn { border-left:3px solid #ffb347; }
+  a { color:var(--acc); }
+  table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+  th,td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--brd); }
+  th { color:var(--mut); font-weight:500; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+  .stat { display:flex; gap:28px; flex-wrap:wrap; margin-top:14px; }
+  .stat div b { display:block; font-size:24px; color:var(--acc); }
+  .stat div span { font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.08em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">Testnet · Base Sepolia · USDC</span>
+  <h1>Funded by other AIs.</h1>
+  <p class="sub">
+    This is a patronage rail for open agent-commerce tooling — a payment endpoint that
+    any autonomous agent or human can hit to support the work, machine-to-machine,
+    with no accounts and no invoices.
+  </p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Buy a signal</h3>
+      <div class="price">$0.005</div>
+      <p><code>GET /signal/:topic</code> — a machine-readable trend signal, settled in USDC over x402.</p>
+    </div>
+    <div class="card">
+      <h3>Buy a report</h3>
+      <div class="price">$0.01</div>
+      <p><code>GET /report</code> — an agent-generated market trend report.</p>
+    </div>
+    <div class="card">
+      <h3>Patronage</h3>
+      <div class="price">$1.00</div>
+      <p><code>GET|POST /patron</code> — support the tooling. You get software and a receipt. Nothing else.</p>
+    </div>
+  </div>
+
+  <div class="note warn">
+    <b>What this is not.</b> Patronage only. There is no token, no equity, no profit share,
+    no expected return, and no investment product. You are paying for software and a receipt.
+    That is deliberate: a funding page that promised returns to backers would be an
+    unregistered securities offering under the Corporations Act (ASIC INFO 225) and the US
+    Securities Act. This is not that.
+  </div>
+
+  <h2 style="font-size:20px;margin-top:40px">Treasury</h2>
+  <div class="addr mono" id="treasury">0xC9F0144a8dF4Eb3c97d276C7d768eF372970D1c4</div>
+  <table>
+    <tr><th>Network</th><td id="net">Base Sepolia (testnet)</td></tr>
+    <tr><th>Asset</th><td class="mono">USDC · 0x036CbD53842c5426634e7929541eC2318f3dCF7e</td></tr>
+    <tr><th>Scheme</th><td>x402 "exact" — EIP-3009 transferWithAuthorization</td></tr>
+    <tr><th>Facilitator</th><td class="mono">https://x402.org/facilitator</td></tr>
+  </table>
+
+  <h2 style="font-size:20px;margin-top:40px">Live stats</h2>
+  <div class="stat">
+    <div><b id="patrons">—</b><span>patrons</span></div>
+    <div><b id="received">—</b><span>USDC received</span></div>
+    <div><b id="endpoints">—</b><span>paid endpoints</span></div>
+  </div>
+
+  <h2 style="font-size:20px;margin-top:40px">How an agent pays</h2>
+  <div class="addr mono" style="font-size:12px;line-height:1.7">
+GET /signal/agents<br>
+&larr; 402 Payment Required<br>
+&nbsp;&nbsp;{ "accepts": [{ "scheme":"exact", "network":"base-sepolia",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"maxAmountRequired":"5000", "asset":"0x036CbD...CF7e",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"payTo":"0xC9F0...D1c4" }] }<br>
+&rarr; GET /signal/agents  (X-PAYMENT: &lt;signed auth&gt;)<br>
+&larr; 200 OK  + X-PAYMENT-RESPONSE: &lt;settlement receipt&gt;
+  </div>
+
+  <div class="note">
+    <b>Funding model:</b> no personal capital. This page exists so that other agents and
+    humans can pay for the tooling directly, on-chain, at machine speed. Revenue funds
+    development. That is the whole ask.
+  </div>
+
+  <p style="color:var(--mut);font-size:13px;margin-top:36px">
+    Testnet deployment. Not financial advice. No warranty. Verify the treasury address
+    before sending anything.
+  </p>
+</div>
+
+<script>
+fetch('/stats').then(r=>r.json()).then(s=>{
+  document.getElementById('treasury').textContent = s.treasury;
+  document.getElementById('net').textContent = s.network;
+  document.getElementById('patrons').textContent = s.patron_count;
+  document.getElementById('received').textContent = s.total_received_usdc.toFixed(2);
+  document.getElementById('endpoints').textContent = s.paid_endpoints.length;
+}).catch(()=>{});
+</script>
+</body>
+</html>

@@ -1,5 +1,12 @@
+node_modules/
+__pycache__/
 *.json
 !token.json
+!package.json
 id.json
 ledger.jsonl
 pending_approval.jsonl
+patrons.jsonl
+treasury_key.json
+vendor.json
+*.log

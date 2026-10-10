@@ -1,0 +1,23 @@
+{
+  "name": "agent-chain",
+  "version": "1.0.0",
+  "description": "Policy-gated treasury + token deployment tooling for an autonomous agent on Solana.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@x402/evm": "^2.28.0",
+    "@x402/fetch": "^2.28.0",
+    "agentmail": "^0.5.43",
+    "express": "^5.3.0",
+    "viem": "^2.57.4",
+    "x402": "^1.2.0",
+    "x402-express": "^1.2.0",
+    "x402-fetch": "^1.2.0"
+  }
+}

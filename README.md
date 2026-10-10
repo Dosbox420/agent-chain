@@ -17,6 +17,8 @@ on-chain transaction, agent ID, or live response.
 
 ---
 
+**Live landing page:** https://dosbox420.github.io/agent-chain/ — the durable record (the paid endpoint itself is an ephemeral tunnel; the page, the challenge shape, and the receipt are permanent).
+
 ## What's in here
 
 | Component | What it does | Proof |

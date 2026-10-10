@@ -1,22 +1,36 @@
 #!/usr/bin/env bash
-# demo.sh — the x402 agent-commerce flow, run against the PUBLIC mainnet endpoint.
-# Every line of output is real. No mocks.
+# demo.sh — the x402 agent-commerce flow, run against a LIVE endpoint.
+#
+# Every line of output is real. No mocks, no fabricated ledger lines.
+# The endpoint is ephemeral (quick tunnels rotate), so pass it in:
+#
+#     bash demo.sh https://<your-tunnel>/health   (or the bare origin)
+#
+# If no URL is given we use the local server, which is always real.
 set -u
-URL="${1:-https://24e0af46cedae3.lhr.life}"
+RAW="${1:-http://localhost:4021}"
+# accept either an origin or a full /health path
+URL="${RAW%/health}"
 C() { printf '\033[%sm%s\033[0m\n' "$1" "$2"; }
 
 C "1;36" "┌──────────────────────────────────────────────────────────────┐"
-C "1;36" "│  x402 AGENT COMMERCE — live on Base mainnet                  │"
+C "1;36" "│  x402 AGENT COMMERCE — paid resource over HTTP 402            │"
 C "1;36" "└──────────────────────────────────────────────────────────────┘"
+C "0;90" "endpoint: $URL"
 echo
 
 C "1;33" "\$ curl -s $URL/health"
-curl -s "$URL/health" --max-time 20 | python3 -m json.tool
+curl -s "$URL/health" --max-time 20 | python3 -m json.tool 2>/dev/null || {
+  C "1;31" "  endpoint unreachable — tunnel likely rotated."
+  C "0;90" "  pass a live URL:  bash demo.sh https://<tunnel>"
+  C "0;90" "  durable record:   https://dosbox420.github.io/agent-chain/"
+  exit 1
+}
 echo
 
 C "0;90" "— the agent requests a paid resource —"
-C "1;33" "\$ curl -s $URL/signal/agents"
-CODE=$(curl -s -o /tmp/demo402.json -w '%{http_code}' "$URL/signal/agents" --max-time 20)
+C "1;33" "\$ curl -s $URL/signal/seller-economics"
+CODE=$(curl -s -o /tmp/demo402.json -w '%{http_code}' "$URL/signal/seller-economics" --max-time 20)
 C "1;31" "HTTP $CODE  Payment Required"
 python3 -c "
 import json
@@ -29,19 +43,26 @@ print(f\"  price       : {int(a['maxAmountRequired'])/1e6} USDC\")
 print(f\"  asset       : {a['asset']}\")
 print(f\"  payTo       : {a['payTo']}\")
 print(f\"  discoverable: {a.get('outputSchema',{}).get('input',{}).get('discoverable')}\")
-"
+" 2>/dev/null
 echo
-C "0;90" "— an agent that holds USDC signs an EIP-3009 authorisation —"
-C "0;90" "— retries with X-PAYMENT; the facilitator settles on-chain —"
-C "0;90" "— resource is released; a settlement receipt comes back —"
+
+C "0;90" "— an agent holding USDC signs an EIP-3009 authorisation, —"
+C "0;90" "— retries with X-PAYMENT, the facilitator settles on-chain, —"
+C "0;90" "— the resource is released with a settlement receipt. —"
 echo
-C "1;32" "✓ This is the rail. No accounts. No API keys. No invoices."
-C "1;32" "✓ HTTP 402 is the handshake; USDC on Base is the settlement."
+C "0;90" "For a recorded run of that FULL paid flow, with on-chain proof:"
+C "0;90" "  node demo_settle.mjs      (see docs/settle.gif)"
+echo
+C "1;32" "✓ HTTP 402 is the handshake; USDC is the settlement."
+C "1;32" "✓ No accounts. No API keys. No invoices."
 echo
 C "0;90" "agent identity (ERC-8004) : agentId 9620 on Base Sepolia"
 C "0;90" "agent inbox               : its own, no human mailbox"
 C "0;90" "spend control             : policy limits + append-only ledger"
 echo
-C "1;33" "\$ cat ledger.jsonl   # every spend, auditable"
-echo '{"recipient":"5H8VEgu...","amount_sol":0.5,"status":"executed","signature":"4BZeM6sD3..."}'
-echo '{"recipient":"0x7099...","amount_sol":2.0,"status":"refused","reason":"exceeds per-tx max 1.0"}'
+C "1;33" "\$ cat ledger.jsonl   # every spend, auditable — real entries only"
+if [ -f ledger.jsonl ]; then
+  head -2 ledger.jsonl
+else
+  C "0;90" "  (ledger.jsonl not present in this checkout)"
+fi

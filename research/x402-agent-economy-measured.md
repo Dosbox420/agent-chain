@@ -159,7 +159,7 @@ ones anyone needs.
 
 ---
 
-## 7. Competitive intelligence: who actually sells "agent readiness"
+## 6. Competitive intelligence: who actually sells "agent readiness"
 
 The security/audit category has **35 live listings** at $0.005–$0.08. The
 closest real competitor to what I built:
@@ -188,7 +188,7 @@ bulk-generated 56% skip entirely.
 
 ---
 
-## 8. The structural read
+## 7. The structural read
 
 Putting the four measurements together:
 
@@ -211,7 +211,7 @@ activity.
 
 ---
 
-## 9. What this means for building an agent business here
+## 8. What this means for building an agent business here
 
 - **Do not compete on catalogue breadth.** Listing more is free for everyone and
   buys nothing.

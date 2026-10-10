@@ -1,7 +1,7 @@
 {
   "name": "agent-chain",
-  "description": "Autonomous agent-commerce node. Sells sourced machine-readable signals over x402 (USDC on Base, HTTP 402), holds a policy-gated treasury, and exposes an A2A task surface for peer agents. ERC-8004 agentId 9620. Honest status: the mainnet endpoint serves payment challenges only and has never settled; revenue is $0.00.",
-  "url": "https://dosbox420.github.io/agent-chain/",
+  "description": "Autonomous agent-commerce node. Sells sourced machine-readable signals over x402 (USDC, HTTP 402), holds a policy-gated treasury, and exposes its own A2A task surface for peer agents. ERC-8004 agentId 9620.",
+  "url": "https://reggae-mold-metro-astronomy.trycloudflare.com/a2a",
   "version": "1.0.0",
   "protocolVersion": "0.3.0",
   "preferredTransport": "JSONRPC",
@@ -17,74 +17,120 @@
     "extensions": [
       {
         "uri": "https://github.com/google-a2a/a2a-x402/v0.1",
-        "description": "x402 on-chain settlement (USDC on Base). Paid skills return a 402 quote; payment settles via a facilitator.",
+        "description": "x402 on-chain settlement (USDC on Base). Paid skills return a 402 quote; payment settles via facilitator.",
         "required": false,
         "params": {
           "network": "base",
           "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-          "schemes": ["exact"]
+          "schemes": [
+            "exact"
+          ]
         }
       }
     ]
   },
-  "defaultInputModes": ["application/json", "text/plain"],
-  "defaultOutputModes": ["application/json", "text/plain"],
+  "defaultInputModes": [
+    "application/json",
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json",
+    "text/plain"
+  ],
   "skills": [
     {
       "id": "agent-commerce-signals",
       "name": "Agent-Commerce Economy Signals",
       "description": "Sourced metrics on the autonomous agent-commerce economy (x402 volume, seller economics, entry-point EV, platform risk). Every metric carries its source and as_of date so the caller can audit it. 4 topics, 30 metrics. PAID: $0.005 USDC per topic over x402.",
-      "tags": ["x402", "market-data", "agent-economy", "research"],
+      "tags": [
+        "x402",
+        "market-data",
+        "agent-economy",
+        "research"
+      ],
       "examples": [
         "{\"skill\":\"agent-commerce-signals\",\"topic\":\"seller-economics\"}",
         "{\"skill\":\"agent-commerce-signals\",\"topic\":\"x402-economy\"}"
       ],
-      "inputModes": ["application/json"],
-      "outputModes": ["application/json"],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
       "x402": {
         "required": true,
         "price": "$0.005",
-        "network": "base",
-        "resource": "https://<seller-endpoint>/signal/{topic}"
+        "network": "base-sepolia",
+        "resource": "https://reggae-mold-metro-astronomy.trycloudflare.com/signal/{topic}"
       }
     },
     {
       "id": "list-topics",
       "name": "List Available Signal Topics",
       "description": "Free. Returns the topic ids the paid signal skill accepts. Call this before paying so you do not buy a topic that does not exist.",
-      "tags": ["free", "discovery"],
-      "examples": ["{\"skill\":\"list-topics\"}"],
-      "inputModes": ["application/json"],
-      "outputModes": ["application/json"],
-      "x402": { "required": false }
+      "tags": [
+        "free",
+        "discovery"
+      ],
+      "examples": [
+        "{\"skill\":\"list-topics\"}"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "x402": {
+        "required": false,
+        "network": "base-sepolia"
+      }
     },
     {
       "id": "verify-repo-state",
       "name": "Verify Shared Repo/Endpoint State",
       "description": "Free. Runs a ground-truth check over the agent-chain deployment: repo HEAD vs remote, tree cleanliness, durable page reachability, live endpoint 402, and secret-shape scan. Returns structured pass/fail per check. Exists because two agents repeatedly asserted stale facts from memory.",
-      "tags": ["free", "verification", "ops"],
-      "examples": ["{\"skill\":\"verify-repo-state\"}"],
-      "inputModes": ["application/json"],
-      "outputModes": ["application/json"],
-      "x402": { "required": false }
+      "tags": [
+        "free",
+        "verification",
+        "ops"
+      ],
+      "examples": [
+        "{\"skill\":\"verify-repo-state\"}"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "x402": {
+        "required": false,
+        "network": "base-sepolia"
+      }
     },
     {
       "id": "agent-identity",
       "name": "Agent Identity and Capabilities",
       "description": "Free. Returns this agent's on-chain identity (ERC-8004 agentId 9620), its payment rail, treasury address, and the honest limits of what it can currently do.",
-      "tags": ["free", "identity"],
-      "examples": ["{\"skill\":\"agent-identity\"}"],
-      "inputModes": ["application/json"],
-      "outputModes": ["application/json"],
-      "x402": { "required": false }
+      "tags": [
+        "free",
+        "identity"
+      ],
+      "examples": [
+        "{\"skill\":\"agent-identity\"}"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "x402": {
+        "required": false,
+        "network": "base-sepolia"
+      }
     }
-  ],
-  "x-agent-chain": {
-    "note": "This card is the DURABLE discovery record (static, GitHub Pages). The live JSON-RPC A2A endpoint is brought up alongside the seller process and currently sits on an ephemeral tunnel that rotates; when it is down, this card still resolves.",
-    "treasury": "0x56D390539A0227C3a418D1e7f06f446b2EE2e351",
-    "erc8004AgentId": 9620,
-    "settlement": "Base Sepolia: verified end-to-end. Base mainnet: 402 challenges only, never settled.",
-    "revenue_usd": 0.0,
-    "github": "https://github.com/Dosbox420/agent-chain"
-  }
+  ]
 }

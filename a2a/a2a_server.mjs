@@ -19,8 +19,9 @@
  * Run: PUBLIC_URL=https://<host> node a2a_server.mjs
  */
 import express from "express";
+import { paymentMiddleware } from "x402-express";
 import { randomUUID } from "node:crypto";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, appendFileSync } from "node:fs";
 import { execFile } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -165,6 +166,35 @@ function rpcError(id, e, data) {
 const app = express();
 app.set("trust proxy", true);
 app.use(express.json({ limit: "1mb" }));
+
+// ---- inbound access log -----------------------------------------------------
+// Added after a third party called a DEAD endpoint and the attempt left no trace.
+// Every inbound request is now recorded with enough context to reply to the caller.
+const ACCESS_LOG = join(__dir, "..", "a2a-access.jsonl");
+app.use((req, res, next) => {
+  const started = Date.now();
+  const rec = {
+    ts: new Date().toISOString(),
+    method: req.method,
+    path: req.path,
+    ip: req.headers["x-forwarded-for"] || req.socket?.remoteAddress || null,
+    ua: req.headers["user-agent"] || null,
+    referer: req.headers["referer"] || null,
+    origin: req.headers["origin"] || null,
+  };
+  res.on("finish", () => {
+    const line = JSON.stringify({ ...rec, status: res.statusCode, ms: Date.now() - started });
+    try {
+      appendFileSync(ACCESS_LOG, line + "\n");
+    } catch {}
+    // Only log non-noise to stdout so the process log stays readable.
+    if (!["/health", "/.well-known/agent-card.json", "/.well-known/agent.json"].includes(req.path)) {
+      console.log(`[hit] ${rec.method} ${rec.path} -> ${res.statusCode} ip=${rec.ip} ua=${(rec.ua || "").slice(0, 60)}`);
+    }
+  });
+  next();
+});
+
 app.use((_q, res, next) => {
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -173,15 +203,106 @@ app.use((_q, res, next) => {
 });
 app.options(/.*/, (_q, res) => res.sendStatus(204));
 
+// ---- x402 paid surface -----------------------------------------------------
+// Served from THIS process so the agent card's `x402.resource` (/signal/{topic})
+// is actually reachable on the same origin the card advertises. Previously the
+// card pointed at a route that lived on a separate, orphaned server.
+const X402_NETWORK = process.env.X402_NETWORK || "base-sepolia";
+app.use(
+  paymentMiddleware(
+    TREASURY,
+    {
+      "GET /signal/*": {
+        price: "$0.005",
+        network: X402_NETWORK,
+        config: { description: "Sourced agent-commerce economy signals, each metric with source + as_of" },
+      },
+      "GET /report": {
+        price: "$0.01",
+        network: X402_NETWORK,
+        config: { description: "Full agent-commerce landscape digest" },
+      },
+    },
+    { url: process.env.FACILITATOR_URL || "https://facilitator.payai.network" },
+  ),
+);
+
+app.get("/signal/:topic", (q, res) => {
+  const t = DATA.topics[q.params.topic];
+  if (!t) {
+    return res.status(404).json({
+      ok: false,
+      error: "unknown_topic",
+      requested: q.params.topic,
+      available_topics: Object.keys(DATA.topics),
+    });
+  }
+  res.json({
+    ok: true,
+    topic: q.params.topic,
+    dataset: DATA.meta.dataset,
+    version: DATA.meta.version,
+    summary: t.summary,
+    metrics: t.metrics,
+    interpretation: t.interpretation,
+    confidence: t.confidence,
+    disclaimer: DATA.meta.disclaimer,
+    served_at: new Date().toISOString(),
+  });
+});
+
+app.get("/report", (_q, res) =>
+  res.json({
+    ok: true,
+    dataset: DATA.meta.dataset,
+    version: DATA.meta.version,
+    topics: Object.entries(DATA.topics).map(([k, v]) => ({
+      topic: k,
+      confidence: v.confidence,
+      metric_count: v.metrics.length,
+    })),
+  }),
+);
+
+app.get("/topics", (_q, res) =>
+  res.json({ ok: true, available_topics: Object.keys(DATA.topics), price: "0.005 USDC per topic" }),
+);
+
 // ---- discovery -------------------------------------------------------------
-function serveCard(_q, res) {
-  res.set("Cache-Control", "public, max-age=300");
-  res.type("application/json").send(JSON.stringify(card, null, 2));
+// The card's `url` MUST match wherever the caller actually reached us. Pinning a
+// tunnel URL goes stale the moment the tunnel rotates (it did, repeatedly). So we
+// derive it from the request's Host header, falling back to PUBLIC_URL only for
+// local/non-proxied calls.
+function baseFor(req) {
+  const host = req.headers["x-forwarded-host"] || req.headers["host"];
+  const proto = req.headers["x-forwarded-proto"] || (host?.includes("localhost") ? "http" : "https");
+  if (host && !/^(localhost|127\.0\.0\.1)/.test(host)) return `${proto}://${host}`;
+  return PUBLIC_URL;
+}
+
+function serveCard(req, res) {
+  const base = baseFor(req);
+  const c = structuredClone(card);
+  c.url = `${base}/a2a`;
+  for (const s of c.skills) {
+    if (s.x402?.resource) s.x402.resource = `${base}/signal/{topic}`;
+    // The card MUST advertise the network we actually settle on. It previously
+    // hardcoded "base" while the server ran base-sepolia, so a paying agent would
+    // have tried mainnet and failed.
+    if (s.x402) s.x402.network = X402_NETWORK;
+  }
+  res.set("Cache-Control", "no-store"); // never let a stale card be cached
+  res.type("application/json").send(JSON.stringify(c, null, 2));
 }
 app.get("/.well-known/agent-card.json", serveCard);
 app.get("/.well-known/agent.json", serveCard);
-app.get("/health", (_q, res) =>
-  res.json({ ok: true, protocol: "a2a/0.3.0", endpoint: `${PUBLIC_URL}/a2a`, skills: card.skills.length }),
+app.get("/health", (req, res) =>
+  res.json({
+    ok: true,
+    protocol: "a2a/0.3.0",
+    endpoint: `${baseFor(req)}/a2a`,
+    skills: card.skills.length,
+  }),
 );
 
 // ---- JSON-RPC endpoint -----------------------------------------------------

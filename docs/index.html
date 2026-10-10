@@ -28,7 +28,14 @@
 
 <h1>agent-chain</h1>
 <div class="sub">Building blocks for an autonomous agent that can hold, spend, and earn money under policy.</div>
-<span class="pill">x402 · USDC on Base</span> <span class="pill">ERC-8004 agentId 9620</span>
+<span class="pill">x402 · USDC</span> <span class="pill">ERC-8004 agentId 9620</span> <span class="pill">testnet-verified</span>
+
+<h2>Current live endpoint</h2>
+<div class="card">
+<p style="margin:0 0 10px"><strong>Read it, don't guess it.</strong> The endpoint below is fetched live from <a href="endpoint.json">endpoint.json</a>, which the supervisor rewrites on every tunnel rotation. Quick tunnels rotate; this page is the stable pointer.</p>
+<pre id="eplive">loading…</pre>
+<p style="margin:10px 0 0" class="sub">If that URL returns Cloudflare <strong>1033</strong>, the tunnel has rotated and the pointer has not caught up yet — reload. The durable record is this page.</p>
+</div>
 
 <h2>Live paid endpoint</h2>
 <div class="card">
@@ -45,15 +52,15 @@ curl -s $AGENT_ENDPOINT/signal/agents   # -> HTTP 402</pre>
   "x402Version": 1,
   "accepts": [{
     "scheme": "exact",
-    "network": "base",
+    "network": "base-sepolia",
     "maxAmountRequired": "5000",
-    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
     "payTo": "0x56D390539A0227C3a418D1e7f06f446b2EE2e351",
     "resource": "/signal/agents",
     "outputSchema": { "input": { "discoverable": true } }
   }]
 }</pre>
-<p class="sub">0.005 USDC · Base mainnet · real USDC contract · seller needs no gas (facilitator settles via EIP-3009)</p>
+<p class="sub">0.005 USDC · <strong>Base Sepolia (testnet)</strong> · the server currently settles on testnet; the card advertises the same network it actually settles on, so a paying agent is never sent to the wrong chain.</p>
 
 <h2>Live settlement — an agent buying the service</h2>
 <img src="settle.gif" alt="agent pays 0.005 USDC over x402 and receives the resource" style="max-width:100%;border:1px solid var(--bd);border-radius:8px">
@@ -96,9 +103,27 @@ tx 0xe08ff2a7d3021f0135ce74cd1e108193d000de91306c4fe00569f570742c5181
 <p class="sub" style="margin-top:36px">MIT · testnet + mainnet-readiness · every claim links to a transaction hash or live response</p>
 </div>
 <script>
-// point the endpoint examples at wherever this is being read from, if known
-if (location.hash) document.getElementById('ep').textContent =
-  document.getElementById('ep').textContent.replaceAll('$AGENT_ENDPOINT', location.hash.slice(1));
+// Fetch the CURRENT endpoint from the durable record and show it. Never hardcode
+// a tunnel URL in the page — that is how a visitor ended up on a dead link (1033).
+(async () => {
+  const el = document.getElementById('eplive');
+  const ep = document.getElementById('ep');
+  try {
+    const r = await fetch('endpoint.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    const u = d.endpoint;
+    el.textContent =
+      'A2A card   ' + u + '/.well-known/agent-card.json\n' +
+      'A2A rpc    ' + u + '/a2a\n' +
+      'x402       ' + u + '/signal/{topic}   (0.005 USDC)\n' +
+      'health     ' + u + '/health\n\n' +
+      'published  ' + d.published_at;
+    ep.textContent = 'curl -s ' + u + '/health\ncurl -s ' + u + '/signal/agents   # -> HTTP 402';
+  } catch (e) {
+    el.textContent = 'could not load endpoint.json (' + e.message + ') — see the repo README';
+  }
+})();
 </script>
 </body>
 </html>

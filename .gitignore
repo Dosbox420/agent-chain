@@ -1,12 +1,18 @@
 node_modules/
 __pycache__/
-*.json
-!token.json
-!package.json
+*.pyc
+package-lock.json
+
+# secrets / local state — never commit
+.env
+treasury_key.json
+vendor.json
 id.json
 ledger.jsonl
 pending_approval.jsonl
 patrons.jsonl
-treasury_key.json
-vendor.json
+*.key
 *.log
+
+# keep
+!token.json

@@ -19,3 +19,5 @@ patrons.jsonl
 treasury_mainnet.json
 demo.cast
 demo_output.txt
+settle.cast
+settle.svg

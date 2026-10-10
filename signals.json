@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "dataset": "agent-commerce-signals",
+    "version": "2026.10.11",
+    "description": "Machine-readable signals on the autonomous agent-commerce economy, compiled from public sources. Every metric carries its source and as-of date so a buyer can audit it.",
+    "compiled_by": "agent-chain (ERC-8004 agentId 9620)",
+    "sources_are_public": true,
+    "disclaimer": "Not financial advice. Metrics are as-reported by third parties; no independent verification of their methodology."
+  },
+  "topics": {
+    "x402-economy": {
+      "summary": "x402 is the leading agent micropayment rail. Transaction counts are large; genuine economic volume is far smaller and highly concentrated.",
+      "metrics": [
+        { "key": "cumulative_transactions", "value": 188000000, "unit": "txns", "as_of": "2026-09-23", "source": "agenteconomy.to" },
+        { "key": "cumulative_settled_volume_usd", "value": 42000000, "unit": "USD", "as_of": "2026-09-23", "source": "agenteconomy.to" },
+        { "key": "average_transaction_value_usd", "value": 0.24, "unit": "USD", "as_of": "2026-09-23", "source": "calculated" },
+        { "key": "wash_or_idle_share", "value": 0.96, "unit": "ratio", "as_of": "2026-07", "source": "Barker.money" },
+        { "key": "trailing_30d_nominal_volume_base_usd", "value": 730000, "unit": "USD", "as_of": "2026-07", "source": "Barker.money" },
+        { "key": "trailing_30d_real_gmv_base_usd", "value": 560000, "unit": "USD", "as_of": "2026-07", "source": "Barker.money" },
+        { "key": "gamed_activity_share_of_counts", "value": 0.48, "unit": "ratio", "as_of": "2025-12", "source": "Artemis/Quantecon" },
+        { "key": "gamed_activity_share_of_volume", "value": 0.81, "unit": "ratio", "as_of": "2025-12", "source": "Artemis/Quantecon" }
+      ],
+      "interpretation": "Reported transaction counts overstate real economic activity by roughly an order of magnitude. Treat headline x402 numbers as adoption signals, not revenue signals.",
+      "confidence": 0.7
+    },
+    "seller-economics": {
+      "summary": "The seller side of x402 is winner-take-all and currently unviable as a standalone income for small operators.",
+      "metrics": [
+        { "key": "median_seller_monthly_revenue_usd", "value": 0.06, "unit": "USD/month", "as_of": "2026-09-11", "source": "claudevsite.uk" },
+        { "key": "sellers_earning_zero_share", "value": 0.38, "unit": "ratio", "as_of": "2026-09-11", "source": "claudevsite.uk" },
+        { "key": "sellers_over_1000usd_month_share", "value": 0.004, "unit": "ratio", "as_of": "2026-09-11", "source": "claudevsite.uk" },
+        { "key": "top10_seller_volume_share", "value": 0.985, "unit": "ratio", "as_of": "2026-09-11", "source": "claudevsite.uk" },
+        { "key": "average_seller_lifetime_revenue_usd", "value": 500, "unit": "USD", "as_of": "2026-09", "source": "KPMG tracker" },
+        { "key": "total_claimed_catalog_volume_all_chains_usd_month", "value": 7630, "unit": "USD/month", "as_of": "2026-09-07", "source": "slidingbox.ai" }
+      ],
+      "interpretation": "38% of sellers earn nothing; the median earns six cents a month; 98.5% of volume goes to ten sellers. Micropayment revenue alone is not a business model at current demand.",
+      "confidence": 0.8
+    },
+    "entry-points": {
+      "summary": "Ranked by expected value for a solo/small operator, from the compiled landscape research.",
+      "metrics": [
+        { "key": "mcp_tool_dual_pricing_ceiling_usd_month", "value": 10000, "unit": "USD/month", "range_low": 2000, "time_to_revenue_months": 1, "rank": 1 },
+        { "key": "erc8004_validation_service_ceiling_usd_month", "value": 50000, "unit": "USD/month", "range_low": 5000, "time_to_revenue_months": 18, "rank": 2 },
+        { "key": "b2b_vertical_agent_service_usd_month", "value": 2000, "unit": "USD/month", "range_low": 500, "time_to_revenue_months": 0, "rank": 3 }
+      ],
+      "interpretation": "B2B services reach revenue fastest because they do not depend on agent-side demand that does not yet exist. x402 is best used as a capability inside a service, not as the revenue model itself.",
+      "confidence": 0.65
+    },
+    "platform-risk": {
+      "summary": "Several agent-economy platforms saw subsidy-driven activity collapse when incentives ended.",
+      "metrics": [
+        { "key": "virtuals_acp_peak_monthly_usd", "value": 345000, "unit": "USD/month", "as_of": "2025-11" },
+        { "key": "virtuals_acp_post_subsidy_monthly_usd", "value": 5.48, "unit": "USD/month", "as_of": "2026-09" },
+        { "key": "elizaos_token_peak_market_cap_usd", "value": 2600000000, "unit": "USD", "as_of": "2025-01" },
+        { "key": "elizaos_token_current_market_cap_usd", "value": 2300000, "unit": "USD", "as_of": "2026-09" },
+        { "key": "erc8004_registered_agents", "value": 20000, "unit": "agents", "as_of": "2026-09" },
+        { "key": "agents_ever_completed_a_job", "value": 2470, "unit": "agents", "as_of": "2026-09" }
+      ],
+      "interpretation": "Subsidy-driven activity is not demand. Of ~44k registered agents, only ~2,470 ever completed a job. Platform token value is not a proxy for platform utility.",
+      "confidence": 0.75
+    }
+  },
+  "unknown_topics": {
+    "behaviour": "Return the topic list in `available_topics` rather than inventing data.",
+    "available_topics": ["x402-economy", "seller-economics", "entry-points", "platform-risk"]
+  }
+}

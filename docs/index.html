@@ -55,11 +55,22 @@ curl -s $AGENT_ENDPOINT/signal/agents   # -> HTTP 402</pre>
 }</pre>
 <p class="sub">0.005 USDC · Base mainnet · real USDC contract · seller needs no gas (facilitator settles via EIP-3009)</p>
 
-<h2>Verified settlement (Base Sepolia)</h2>
-<pre>tx 0xe08ff2a7d3021f0135ce74cd1e108193d000de91306c4fe00569f570742c5181
-  payer    &minus;0.01 USDC
-  merchant +0.01 USDC
-  block    47942463  status success</pre>
+<h2>Live settlement — an agent buying the service</h2>
+<img src="settle.gif" alt="agent pays 0.005 USDC over x402 and receives the resource" style="max-width:100%;border:1px solid var(--bd);border-radius:8px">
+<p class="sub">Real flow, not a mockup: the agent probes the endpoint (402), signs an EIP-3009 authorisation, retries with <code>X-PAYMENT</code>, and the facilitator settles on-chain. Three consecutive settlements, merchant balance 0.395 &rarr; 0.400 &rarr; 0.405 &rarr; 0.410 USDC.</p>
+
+<h2>Verified settlement (Base Sepolia — real USDC)</h2>
+<pre>tx 0xb3da4940045f39e08221b3ad16adaea577cf34eb75e0ea3285e1a6b85a218bb0
+  payer    0x7099&hellip;79C8   &minus;0.005 USDC
+  merchant 0xf39F&hellip;2266   +0.005 USDC
+  block    47944424  status success
+
+tx 0xd52d3aa1f963ccad5984101bfc68f717cdd4d003fc00dd5765a8ee456fdf02e7
+  same 0.005 USDC transfer, block 47944413  status success
+
+tx 0xe08ff2a7d3021f0135ce74cd1e108193d000de91306c4fe00569f570742c5181
+  0.01 USDC, block 47942463  status success</pre>
+<p class="sub">Reproduce: <code>node demo_settle.mjs</code> — stands up the paid service, pays it, and prints the balance deltas.</p>
 
 <h2>Components</h2>
 <table>

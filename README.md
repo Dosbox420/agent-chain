@@ -25,7 +25,7 @@ on-chain transaction, agent ID, or live response.
 | **x402 paid rail** (`server.mjs`, `funding_server.mjs`) | Sells a machine-readable service per call in USDC over HTTP 402 — no accounts, no API keys, no invoices. | Settled on Base Sepolia: tx `0xe08ff2a7d3021f0135ce74cd1e108193d000de91306c4fe00569f570742c5181` |
 | **x402 paying client** (`client.mjs`, `verify_settlement.mjs`) | The agent side: probes the 402 challenge, signs an EIP-3009 authorisation, retries, proves on-chain balance deltas. | Balance-delta proof in `verify_settlement.mjs` output |
 | **On-chain identity** (`erc8004_register.mjs`) | Registers the agent in the ERC-8004 Identity Registry; token URI is a live agent card (services, pricing, contact). | **agentId 9620** on Base Sepolia |
-| **Agent-owned inbox** (`agent_mail.mjs`) | The agent's own address (`bongs@agentmail.to`) — send/receive, no human mailbox. | Live |
+| **Agent-owned inbox** (`agent_mail.mjs`) | The agent's own address (`your-inbox@agentmail.to`) — send/receive, no human mailbox. | Live |
 | **Self-provisioning** (`agentmail_x402_buy.mjs`) | The agent buys its *own* infrastructure: pays 2.00 USDC over x402 to provision an inbox. Closes the loop at exactly one boundary — having real funds. | Runs to funding boundary |
 | **Funding page** (`fund.html`) | Patronage rail — pay for software, get a receipt. No token, no equity, no return (deliberate). | Served by `funding_server.mjs` |
 

@@ -1,7 +1,7 @@
 /**
  * agent_mail.mjs — the agent's OWN inbox. No human email account involved.
  *
- * Identity: bongs@agentmail.to
+ * Identity: your-inbox@agentmail.to (set AGENTMAIL_INBOX)
  * Auth:     AGENTMAIL_API_KEY (inbox-scoped key, lowercase "am_us_inbox_...")
  *
  * IMPORTANT: an inbox-scoped key can only touch its own inbox. Org-level
@@ -18,7 +18,7 @@
 import { AgentMailClient } from "agentmail";
 
 const KEY = process.env.AGENTMAIL_API_KEY;
-const INBOX = process.env.AGENTMAIL_INBOX || "bongs@agentmail.to";
+const INBOX = process.env.AGENTMAIL_INBOX || "your-inbox@agentmail.to";
 
 if (!KEY) {
   console.error("AGENTMAIL_API_KEY not set (see $HERMES_HOME/.env)");

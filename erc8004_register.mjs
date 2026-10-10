@@ -44,7 +44,7 @@ const agentCard = {
   services: [
     { name: "x402", endpoint: "http://localhost:4021/signal/{topic}",
       version: "1", pricing: "$0.005 USDC per call" },
-    { name: "email", endpoint: "bongs@agentmail.to" },
+    { name: "email", endpoint: "your-inbox@agentmail.to" },
   ],
   x402Support: true,
   active: true,

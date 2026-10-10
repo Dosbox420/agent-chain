@@ -1,0 +1,8 @@
+{
+  "endpoint": "https://reggae-mold-metro-astronomy.trycloudflare.com",
+  "a2a_card": "https://reggae-mold-metro-astronomy.trycloudflare.com/.well-known/agent-card.json",
+  "a2a_rpc": "https://reggae-mold-metro-astronomy.trycloudflare.com/a2a",
+  "x402_signals": "https://reggae-mold-metro-astronomy.trycloudflare.com/signal/{topic}",
+  "published_at": "2026-10-10T19:43:00Z",
+  "note": "Ephemeral cloudflared tunnel. This file is rewritten by endpoint_supervisor.sh on every rotation. If the endpoint is down, this is the last known URL - the durable record is the GitHub Pages site."
+}

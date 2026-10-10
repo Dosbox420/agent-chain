@@ -21,7 +21,7 @@ an skb, and check flag handling. Then trace reachability for each gap.
 6264:  to_shinfo->flags |= from_shinfo->flags & SKBFL_SHARED_FRAG;
 ```
 
-## Automated scan: 4 apparent gaps
+## Automated scan: 4 apparent gaps + 1 confirmed historical gap
 
 A regex scan for skb-creating functions lacking `SHARED_FRAG` returned:
 
@@ -31,10 +31,46 @@ A regex scan for skb-creating functions lacking `SHARED_FRAG` returned:
 | `skb_zerocopy` | **no flag handling** | **NOT REACHABLE** — zero callers anywhere in the tree. Dead helper. |
 | `skb_zerocopy_iter_stream` | **no flag handling** | **SAFE** — ends with `skb_zcopy_set()` → `skb_zcopy_init()`, which does `skb_shinfo(skb)->flags \|= uarg->flags` (a *second producer* path, not a propagation gap). |
 | `__skb_splice_bits` | **no flag handling** | **SAFE by construction** — this is the *producer* entry point that hands frags to the app; the flag is set by the caller (`__ip_append_data`), not here. |
+| `skb_try_coalesce` | propagates (post-fix) | **WAS A GAP — CVE-2026-46300** (see below) |
 
-**Verdict: no propagation gap found.** All four candidates resolve as safe or
-unreachable once the helper calls are traced. Stated as a bounded negative, not
-proof of absence.
+### CVE-2026-46300: the propagation gap that defeats the Dirty Frag fix
+
+**CVSS 7.8** · `AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H` · NVD status: Modified · 50 references
+
+`skb_try_coalesce()` can attach paged frags from `@from` to `@to`. If `@from`
+has `SKBFL_SHARED_FRAG` set, the resulting `@to` skb can contain the same
+externally-owned or page-cache-backed frags, but the shared-frag marker was
+lost.
+
+NVD description (verbatim):
+
+> That breaks the invariant relied on by later in-place writers. In
+> particular, ESP input checks `skb_has_shared_frag()` before deciding
+> whether an uncloned nonlinear skb can skip `skb_cow_data()`. If TCP
+> receive coalescing has moved shared frags into an unmarked skb, ESP can
+> see `skb_has_shared_frag()` as false and decrypt in place over page-cache
+> backed frags.
+
+**This is a fix bypass.** The Dirty Frag fix (CVE-2026-43284) added the
+`skb_has_shared_frag()` guard in `esp4.c`/`esp6.c`. CVE-2026-46300 shows that
+TCP receive coalescing (`skb_try_coalesce`) could move shared frags into an
+unmarked skb, making the guard see `false` and decrypt in place anyway.
+
+**Fix:** propagate `SKBFL_SHARED_FRAG` when `skb_try_coalesce()` transfers
+paged frags. The tailroom copy path does not need the marker because it copies
+bytes into `@to`'s linear data rather than transferring frag descriptors.
+
+**Current mainline (verified):** line 6264 of `skbuff.c` now reads:
+```c
+if (from_shinfo->nr_frags)
+    to_shinfo->flags |= from_shinfo->flags & SKBFL_SHARED_FRAG;
+```
+
+**My audit error:** I read *current* mainline (post-fix) and concluded
+`skb_try_coalesce` "propagates" — which is true *now* but was not true before
+CVE-2026-46300 was fixed. The CVE record is the historical evidence that the
+gap existed. This is a classic post-fix audit blind spot: auditing patched code
+and concluding "no gap" when the CVE proves there was one.
 
 ---
 
@@ -113,9 +149,16 @@ a silent security regression into an immediate kernel warning.
 
 | Claim | Status |
 |---|---|
-| Flag propagation complete in mainline | **Verified** — 6 sites, all correct |
+| Flag propagation complete in mainline | **Verified** — 6 sites, all correct (post-CVE-2026-46300 fix) |
 | `skb_copy_ubufs` drops the flag | **False positive** — cleared via `skb_zcopy_clear` |
 | `skb_zerocopy` drops the flag | **Not reachable** — zero callers in tree |
 | `skb_zerocopy_iter_stream` drops the flag | **False positive** — sets it via `skb_zcopy_init` |
+| `skb_try_coalesce` drops the flag | **WAS TRUE — CVE-2026-46300.** Fixed in current mainline. |
 | New exploitable instance found | **No** — bounded negative, not proof of absence |
 | Guard count sufficient as a long-term fix | **No** — producer/consumer asymmetry favours a single authoritative setter |
+
+**Critical correction:** The initial audit concluded "no propagation gap found."
+This was wrong. CVE-2026-46300 proves `skb_try_coalesce` was a real gap that
+defeated the Dirty Frag fix. The error was auditing *post-fix* mainline and
+seeing the fix already in place. The lesson: **a CVE record is historical
+evidence that survives the fix; reading only current source erases it.**

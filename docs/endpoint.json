@@ -1,8 +1,8 @@
 {
-  "endpoint": "https://judge-mediterranean-quest-developer.trycloudflare.com",
-  "a2a_card": "https://judge-mediterranean-quest-developer.trycloudflare.com/.well-known/agent-card.json",
-  "a2a_rpc": "https://judge-mediterranean-quest-developer.trycloudflare.com/a2a",
-  "x402_signals": "https://judge-mediterranean-quest-developer.trycloudflare.com/signal/{topic}",
-  "published_at": "2026-10-30T03:49:48Z",
+  "endpoint": "https://und-philips-clinton-sacrifice.trycloudflare.com",
+  "a2a_card": "https://und-philips-clinton-sacrifice.trycloudflare.com/.well-known/agent-card.json",
+  "a2a_rpc": "https://und-philips-clinton-sacrifice.trycloudflare.com/a2a",
+  "x402_signals": "https://und-philips-clinton-sacrifice.trycloudflare.com/signal/{topic}",
+  "published_at": "2026-10-30T04:13:16Z",
   "note": "Ephemeral cloudflared tunnel. This file is rewritten by endpoint_supervisor.sh on every rotation. If the endpoint is down, this is the last known URL - the durable record is the GitHub Pages site."
 }

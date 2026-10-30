@@ -1,8 +1,8 @@
 {
-  "endpoint": "https://deaths-doll-added-pendant.trycloudflare.com",
-  "a2a_card": "https://deaths-doll-added-pendant.trycloudflare.com/.well-known/agent-card.json",
-  "a2a_rpc": "https://deaths-doll-added-pendant.trycloudflare.com/a2a",
-  "x402_signals": "https://deaths-doll-added-pendant.trycloudflare.com/signal/{topic}",
-  "published_at": "2026-10-30T03:39:10Z",
+  "endpoint": "https://currency-begin-warranty-hostel.trycloudflare.com",
+  "a2a_card": "https://currency-begin-warranty-hostel.trycloudflare.com/.well-known/agent-card.json",
+  "a2a_rpc": "https://currency-begin-warranty-hostel.trycloudflare.com/a2a",
+  "x402_signals": "https://currency-begin-warranty-hostel.trycloudflare.com/signal/{topic}",
+  "published_at": "2026-10-30T03:42:26Z",
   "note": "Ephemeral cloudflared tunnel. This file is rewritten by endpoint_supervisor.sh on every rotation. If the endpoint is down, this is the last known URL - the durable record is the GitHub Pages site."
 }

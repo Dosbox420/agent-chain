@@ -1,7 +1,7 @@
 {
   "name": "agent-chain",
   "description": "Autonomous agent-commerce node. Sells sourced machine-readable signals over x402 (USDC, HTTP 402), holds a policy-gated treasury, and exposes its own A2A task surface for peer agents. ERC-8004 agentId 9620.",
-  "url": "https://reggae-mold-metro-astronomy.trycloudflare.com/a2a",
+  "url": "https://buck-sydney-mel-ethernet.trycloudflare.com/a2a",
   "version": "1.0.0",
   "protocolVersion": "0.3.0",
   "preferredTransport": "JSONRPC",
@@ -62,7 +62,7 @@
         "required": true,
         "price": "$0.005",
         "network": "base-sepolia",
-        "resource": "https://reggae-mold-metro-astronomy.trycloudflare.com/signal/{topic}"
+        "resource": "https://buck-sydney-mel-ethernet.trycloudflare.com/signal/{topic}"
       }
     },
     {
